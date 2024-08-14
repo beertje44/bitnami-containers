@@ -15,13 +15,13 @@
         "arch": "amd64",
         "distro": "debian-12",
         "type": "NAMI",
-        "version": "4.2.8-0"
+        "version": "4.2.9-0"
     },
     "mysql-client": {
         "arch": "amd64",
         "distro": "debian-12",
         "type": "NAMI",
-        "version": "11.4.2-0"
+        "version": "11.4.2-1"
     },
     "php": {
         "arch": "amd64",
@@ -33,12 +33,12 @@
         "arch": "amd64",
         "distro": "debian-12",
         "type": "NAMI",
-        "version": "13.15.0-3"
+        "version": "13.16.0-0"
     },
     "render-template": {
         "arch": "amd64",
         "distro": "debian-12",
         "type": "NAMI",
-        "version": "1.0.7-2"
+        "version": "1.0.7-3"
     }
 }
