@@ -18,5 +18,5 @@ jobs:
           any-of-labels: 'solved'
           stale-issue-label: 'solved'
           days-before-stale: 0
-          days-before-close: 0
+          days-before-close: 1
           repo-token: ${{ secrets.BITNAMI_BOT_TOKEN }}
