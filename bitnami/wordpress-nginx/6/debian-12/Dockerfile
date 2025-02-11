@@ -46,6 +46,7 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
     done
 RUN apt-get update \
   && apt-get install -y autoconf wget build-essential composer git binutils \
+  && apt-get install -y autoconf wget build-essential composer git binutils \
   && cd /tmp \
   && wget https://pecl.php.net/get/redis-6.0.2.tgz \
   && tar xzf redis-6.0.2.tgz \
@@ -55,7 +56,36 @@ RUN apt-get update \
   && make install \
   && echo 'extension=redis.so' >> /opt/bitnami/php/etc/php.ini \
   && cd .. \
+  && cd .. \
   && rm -rf redis-6.0.2* \
+  && wget https://pecl.php.net/get/opentelemetry-1.1.2.tgz \
+  && tar xzf opentelemetry-1.1.2.tgz \
+  && cd opentelemetry-1.1.2 \
+  && /opt/bitnami/php/bin/phpize && ./configure  --with-php-config=/opt/bitnami/php/bin/php-config \
+  && make -j32 \
+  && make install \
+  && echo 'extension=opentelemetry.so' >> /opt/bitnami/php/etc/php.ini \
+  && cd .. \
+  && rm -rf opentelemetry-1.1.2 \
+  && wget https://pecl.php.net/get/protobuf-4.29.3.tgz \
+  && tar xzf protobuf-4.29.3.tgz \
+  && cd protobuf-4.29.3 \
+  && /opt/bitnami/php/bin/phpize && ./configure  --with-php-config=/opt/bitnami/php/bin/php-config \
+  && make -j32 \
+  && make install \
+  && echo 'extension=protobuf.so' >> /opt/bitnami/php/etc/php.ini \
+  && cd .. \
+  && rm -rf protobuf-4.29.3 \
+  && git clone https://github.com/adsr/phpspy.git \
+  && cd phpspy \
+  && make -j32 \
+  && make install \
+  && cd .. \
+  && rm -rf phpspy \
+  && git clone https://github.com/zoonru/pyrospy.git \
+  && cd pyrospy \
+  && /opt/bitnami/php/bin/php /usr/bin/composer install \
+  && apt-get autoremove --purge -y autoconf wget build-essential git
   && wget https://pecl.php.net/get/opentelemetry-1.1.2.tgz \
   && tar xzf opentelemetry-1.1.2.tgz \
   && cd opentelemetry-1.1.2 \
