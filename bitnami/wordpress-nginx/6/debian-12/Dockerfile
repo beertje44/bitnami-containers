@@ -45,7 +45,7 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
 RUN apt-get update \
-  && apt-get install -y autoconf wget build-essential \
+  && apt-get install -y autoconf wget build-essential composer git binutils \
   && cd /tmp \
   && wget https://pecl.php.net/get/redis-6.0.2.tgz \
   && tar xzf redis-6.0.2.tgz \
@@ -54,8 +54,36 @@ RUN apt-get update \
   && make -j32 \
   && make install \
   && echo 'extension=redis.so' >> /opt/bitnami/php/etc/php.ini \
+  && cd .. \
   && rm -rf redis-6.0.2* \
-  && apt-get autoremove --purge -y autoconf wget build-essential
+  && wget https://pecl.php.net/get/opentelemetry-1.1.2.tgz \
+  && tar xzf opentelemetry-1.1.2.tgz \
+  && cd opentelemetry-1.1.2 \
+  && /opt/bitnami/php/bin/phpize && ./configure  --with-php-config=/opt/bitnami/php/bin/php-config \
+  && make -j32 \
+  && make install \
+  && echo 'extension=opentelemetry.so' >> /opt/bitnami/php/etc/php.ini \
+  && cd .. \
+  && rm -rf opentelemetry-1.1.2 \
+  && wget https://pecl.php.net/get/protobuf-4.29.3.tgz \
+  && tar xzf protobuf-4.29.3.tgz \
+  && cd protobuf-4.29.3 \
+  && /opt/bitnami/php/bin/phpize && ./configure  --with-php-config=/opt/bitnami/php/bin/php-config \
+  && make -j32 \
+  && make install \
+  && echo 'extension=protobuf.so' >> /opt/bitnami/php/etc/php.ini \
+  && cd .. \
+  && rm -rf protobuf-4.29.3 \
+  && git clone https://github.com/adsr/phpspy.git \
+  && cd phpspy \
+  && make -j32 \
+  && make install \
+  && cd .. \
+  && rm -rf phpspy \
+  && git clone https://github.com/zoonru/pyrospy.git \
+  && cd pyrospy \
+  && /opt/bitnami/php/bin/php /usr/bin/composer install \
+  && apt-get autoremove --purge -y autoconf wget build-essential git
 
 RUN apt-get autoremove --purge -y curl && \
     apt-get update && apt-get upgrade -y && \
@@ -69,6 +97,19 @@ RUN /opt/bitnami/scripts/nginx/postunpack.sh
 RUN /opt/bitnami/scripts/php/postunpack.sh
 RUN /opt/bitnami/scripts/nginx-php-fpm/postunpack.sh
 RUN /opt/bitnami/scripts/wordpress/postunpack.sh
+RUN cd /bitnami \
+  && /opt/bitnami/php/bin/php /usr/bin/composer require \
+    open-telemetry/sdk \
+    open-telemetry/exporter-otlp \
+    open-telemetry/opentelemetry-auto-wordpress \
+    open-telemetry/opentelemetry-auto-psr15 \
+    open-telemetry/opentelemetry-auto-psr18 \
+    guzzlehttp/guzzle \
+    guzzlehttp/psr7 \
+    vlucas/phpdotenv \
+  && echo "auto_prepend_file=/bitnami/wordpress/autoload.php" >> /opt/bitnami/php/etc/php.ini \
+  && mv /tmp/pyrospy ./ \
+  && mv /tmp/reli-prof ./
 ENV APP_VERSION="6.7.1" \
     BITNAMI_APP_NAME="wordpress-nginx" \
     NGINX_HTTPS_PORT_NUMBER="" \
