@@ -85,7 +85,6 @@ RUN apt-get update \
   && git clone https://github.com/zoonru/pyrospy.git \
   && cd pyrospy \
   && /opt/bitnami/php/bin/php /usr/bin/composer install \
-  && apt-get autoremove --purge -y autoconf wget build-essential git \
   && wget https://pecl.php.net/get/opentelemetry-1.1.2.tgz \
   && tar xzf opentelemetry-1.1.2.tgz \
   && cd opentelemetry-1.1.2 \
