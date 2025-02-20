@@ -46,7 +46,6 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
     done
 RUN apt-get update \
   && apt-get install -y autoconf wget build-essential composer git binutils \
-  && apt-get install -y autoconf wget build-essential composer git binutils \
   && cd /tmp \
   && wget https://pecl.php.net/get/redis-6.0.2.tgz \
   && tar xzf redis-6.0.2.tgz \
@@ -55,7 +54,6 @@ RUN apt-get update \
   && make -j32 \
   && make install \
   && echo 'extension=redis.so' >> /opt/bitnami/php/etc/php.ini \
-  && cd .. \
   && cd .. \
   && rm -rf redis-6.0.2* \
   && wget https://pecl.php.net/get/opentelemetry-1.1.2.tgz \
@@ -137,8 +135,7 @@ RUN cd /bitnami \
     guzzlehttp/psr7 \
     vlucas/phpdotenv \
   && echo "auto_prepend_file=/bitnami/wordpress/autoload.php" >> /opt/bitnami/php/etc/php.ini \
-  && mv /tmp/pyrospy ./ \
-  && mv /tmp/reli-prof ./
+  && mv /tmp/pyrospy ./ 
 ENV APP_VERSION="6.7.2" \
     BITNAMI_APP_NAME="wordpress-nginx" \
     NGINX_HTTPS_PORT_NUMBER="" \
