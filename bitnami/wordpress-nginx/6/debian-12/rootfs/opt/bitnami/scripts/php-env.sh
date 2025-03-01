@@ -89,3 +89,4 @@ export PHP_UPLOAD_MAX_FILESIZE="${PHP_UPLOAD_MAX_FILESIZE:-}"
 export PHP_OUTPUT_BUFFERING="8196"
 
 # Custom environment variables may be defined below
+export LANG="en_US.UTF-8"

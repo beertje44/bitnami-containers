@@ -26,7 +26,12 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages acl ca-certificates curl gettext less libaudit1 libbrotli1 libbsd0 libbz2-1.0 libcap-ng0 libcom-err2 libcrypt1 libcurl4 libexpat1 libffi8 libfftw3-double3 libfontconfig1 libfreetype6 libgcc-s1 libgcrypt20 libgeoip1 libglib2.0-0 libgmp10 libgnutls30 libgomp1 libgpg-error0 libgssapi-krb5-2 libhashkit2 libhogweed6 libicu72 libidn2-0 libjpeg62-turbo libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblcms2-2 libldap-2.5-0 liblqr-1-0 libltdl7 liblzma5 libmagickcore-6.q16-6 libmagickwand-6.q16-6 libmd0 libmemcached11 libncurses6 libnettle8 libnghttp2-14 libonig5 libp11-kit0 libpam0g libpcre2-8-0 libpcre3 libpng16-16 libpq5 libpsl5 libreadline8 librtmp1 libsasl2-2 libsodium23 libsqlite3-0 libssh2-1 libssl3 libstdc++6 libsybdb5 libtasn1-6 libtidy5deb1 libtinfo6 libunistring2 libwebp7 libx11-6 libxau6 libxcb1 libxdmcp6 libxext6 libxml2 libxslt1.1 libzip4 libzstd1 openssl procps zlib1g
+RUN install_packages acl ca-certificates curl gettext less libaudit1 libbrotli1 libbsd0 libbz2-1.0 libcap-ng0 libcom-err2 libcrypt1 libcurl4 libexpat1 libffi8 libfftw3-double3 libfontconfig1 libfreetype6 libgcc-s1 libgcrypt20 libgeoip1 libglib2.0-0 libgmp10 libgnutls30 libgomp1 libgpg-error0 libgssapi-krb5-2 libhashkit2 libhogweed6 libicu72 libidn2-0 libjpeg62-turbo libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 liblcms2-2 libldap-2.5-0 liblqr-1-0 libltdl7 liblzma5 libmagickcore-6.q16-6 libmagickwand-6.q16-6 libmd0 libmemcached11 libncurses6 libnettle8 libnghttp2-14 libonig5 libp11-kit0 libpam0g libpcre2-8-0 libpcre3 libpng16-16 libpq5 libpsl5 libreadline8 librtmp1 libsasl2-2 libsodium23 libsqlite3-0 libssh2-1 libssl3 libstdc++6 libsybdb5 libtasn1-6 libtidy5deb1 libtinfo6 libunistring2 libwebp7 libx11-6 libxau6 libxcb1 libxdmcp6 libxext6 libxml2 libxslt1.1 libzip4 libzstd1 locales openssl procps zlib1g
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+  && dpkg-reconfigure --frontend=noninteractive locales \
+  && update-locale LANG=en_US.UTF-8
+ENV LANG="en_US.UTF-8"
+
 RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
     COMPONENTS=( \
       "render-template-1.0.7-13-linux-${OS_ARCH}-debian-12" \
@@ -55,7 +60,7 @@ RUN apt-get update \
   && make install \
   && echo 'extension=redis.so' >> /opt/bitnami/php/etc/php.ini \
   && cd .. \
-  && rm -rf redis-6.0.2* \
+  && rm -rf ./redis-6.0.2* \
   && wget https://pecl.php.net/get/opentelemetry-1.1.2.tgz \
   && tar xzf opentelemetry-1.1.2.tgz \
   && cd opentelemetry-1.1.2 \
@@ -64,7 +69,7 @@ RUN apt-get update \
   && make install \
   && echo 'extension=opentelemetry.so' >> /opt/bitnami/php/etc/php.ini \
   && cd .. \
-  && rm -rf opentelemetry-1.1.2 \
+  && rm -rf ./opentelemetry-1.1.2* \
   && wget https://pecl.php.net/get/protobuf-4.29.3.tgz \
   && tar xzf protobuf-4.29.3.tgz \
   && cd protobuf-4.29.3 \
@@ -73,20 +78,27 @@ RUN apt-get update \
   && make install \
   && echo 'extension=protobuf.so' >> /opt/bitnami/php/etc/php.ini \
   && cd .. \
-  && rm -rf protobuf-4.29.3 \
+  && rm -rf ./protobuf-4.29.3* \
   && git clone https://github.com/adsr/phpspy.git \
   && cd phpspy \
   && make -j32 \
   && make install \
   && cd .. \
-  && rm -rf phpspy \
-  && git clone https://github.com/zoonru/pyrospy.git \
-  && cd pyrospy \
-  && /opt/bitnami/php/bin/php /usr/bin/composer install \
+  && rm -rf ./phpspy \
+  && wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz \
+  && tar -C /tmp -xzf go1.24.0.linux-amd64.tar.gz \
+  && git clone https://github.com/beertje44/phpScope \
+  && cd phpScope \
+  && /tmp/go/bin/go mod download \
+  && CGO_ENABLED=0 GOOS=linux /tmp/go/bin/go build -o phpscope . \
+  && mv phpscope /usr/local/bin \
+  && chmod 755 /usr/local/bin/phpscope \
+  && cd .. \
+  && rm -rf ./phpScope \
+  && rm -rf ./go* \
   && apt-get autoremove --purge -y autoconf wget build-essential git
 
-RUN apt-get autoremove --purge -y curl && \
-    apt-get update && apt-get upgrade -y && \
+RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 RUN chmod g+rwX /opt/bitnami
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
@@ -97,7 +109,8 @@ RUN /opt/bitnami/scripts/nginx/postunpack.sh
 RUN /opt/bitnami/scripts/php/postunpack.sh
 RUN /opt/bitnami/scripts/nginx-php-fpm/postunpack.sh
 RUN /opt/bitnami/scripts/wordpress/postunpack.sh
-RUN cd /bitnami \
+RUN /opt/bitnami/wp-cli/bin/wp package install wp-cli/doctor-command:@stable --allow-root \
+  && cd /bitnami \
   && /opt/bitnami/php/bin/php /usr/bin/composer require \
     open-telemetry/sdk \
     open-telemetry/exporter-otlp \
@@ -108,7 +121,7 @@ RUN cd /bitnami \
     guzzlehttp/psr7 \
     vlucas/phpdotenv \
   && echo "auto_prepend_file=/bitnami/wordpress/autoload.php" >> /opt/bitnami/php/etc/php.ini \
-  && mv /tmp/pyrospy ./ 
+  && echo -e "\nenv[LANG] = \$LANG" >> /opt/bitnami/php/etc/environment.conf
 ENV APP_VERSION="6.7.2" \
     BITNAMI_APP_NAME="wordpress-nginx" \
     NGINX_HTTPS_PORT_NUMBER="" \

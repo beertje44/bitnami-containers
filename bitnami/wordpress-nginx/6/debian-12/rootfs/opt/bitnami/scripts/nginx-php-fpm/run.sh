@@ -25,5 +25,8 @@ trap _forwardTerm TERM
 info "Starting PHP-FPM..."
 /opt/bitnami/scripts/php/run.sh &
 
+info "Starting phpScope..."
+/opt/bitnami/scripts/phpScope/run.sh &
+
 info "Starting NGINX..."
 /opt/bitnami/scripts/nginx/run.sh
